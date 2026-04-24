@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arya Library — Analytics</title>
+  <link rel="icon" type="image/jpeg" href="/analytics-static/ace_logo.jpeg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/analytics-static/styles.css">
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <img src="/analytics-static/ace_logo.jpeg" alt="ACE Logo" class="sidebar-logo">
+      <div class="sidebar-brand-text">
+        <span class="sidebar-college">Arya College</span>
+        <span class="sidebar-title">Analytics</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <span class="sidebar-section-label">Views</span>
+      <a href="/admin" class="sidebar-link">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Main Dashboard
+      </a>
+      <a href="/analytics" class="sidebar-link active">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 20h18M5 20V10l7-7 7 7v10"/></svg>
+        Analytics
+      </a>
+    </nav>
+
+    <div class="sidebar-filters">
+      <span class="sidebar-section-label">Filters</span>
+
+      <div class="filter-block">
+        <label class="filter-label">Search</label>
+        <input id="analyticsSearch" type="text" class="filter-input" placeholder="Name, ID, branch…">
+      </div>
+
+      <div class="filter-block">
+        <label class="filter-label">Branch</label>
+        <select id="analyticsCourse" class="filter-input">
+          <option value="">All Branches</option>
+        </select>
+      </div>
+
+      <div class="filter-block">
+        <label class="filter-label">Status</label>
+        <select id="analyticsState" class="filter-input">
+          <option value="all">All Visits</option>
+          <option value="inside">Inside Only</option>
+          <option value="completed">Completed Only</option>
+        </select>
+      </div>
+
+      <div class="filter-row">
+        <div class="filter-block">
+          <label class="filter-label">From</label>
+          <input id="analyticsDateFrom" type="date" class="filter-input">
+        </div>
+        <div class="filter-block">
+          <label class="filter-label">To</label>
+          <input id="analyticsDateTo" type="date" class="filter-input">
+        </div>
+      </div>
+
+      <div class="filter-block">
+        <label class="filter-label">Week</label>
+        <select id="analyticsWeek" class="filter-input">
+          <option value="">All Weeks</option>
+        </select>
+      </div>
+
+      <div class="filter-block">
+        <label class="filter-label">Rows shown</label>
+        <select id="analyticsRowLimit" class="filter-input">
+          <option value="100">100</option>
+          <option value="250" selected>250</option>
+          <option value="500">500</option>
+          <option value="1000">1000</option>
+        </select>
+      </div>
+
+      <div class="preset-strip">
+        <button class="preset-btn" id="presetTodayBtn">Today</button>
+        <button class="preset-btn" id="presetWeekBtn">This Week</button>
+        <button class="preset-btn" id="presetSevenDaysBtn">7 Days</button>
+        <button class="preset-btn clear-btn" id="clearAnalyticsFiltersBtn">Clear</button>
+      </div>
+    </div>
+
+    <div class="sidebar-auth">
+      <div class="auth-mode-row">
+        <div class="mode-dot" id="modeDot"></div>
+        <span class="mode-label" id="modeLabel">Masked View</span>
+      </div>
+      <button class="auth-btn" id="analyticsAdminBtn">Unlock Full View</button>
+      <button class="auth-btn danger hidden" id="analyticsLogoutBtn">Sign Out</button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="page-title">Library Analytics</h1>
+        <div class="status-row">
+          <span class="status-chip" id="analyticsSyncPill">Syncing…</span>
+          <span class="status-chip mode-chip" id="analyticsModePill">Masked</span>
+          <span class="status-chip filter-chip" id="analyticsFilterPill">All Visits</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="dl-btn" id="downloadTodayBtn">↓ Today</button>
+        <div class="dl-group">
+          <select id="downloadWeekSelect" class="dl-select">
+            <option value="">Select Week</option>
+          </select>
+          <button class="dl-btn" id="downloadWeekBtn">↓ Week</button>
+        </div>
+        <button class="dl-btn primary-btn" id="downloadFilteredBtn">↓ Export</button>
+      </div>
+    </header>
+
+    <!-- VIEW TOGGLE -->
+    <div class="view-toggle-bar">
+      <button class="view-chip active" id="maskedViewBtn">Masked</button>
+      <button class="view-chip" id="fullViewBtn" disabled>Full View</button>
+    </div>
+
+    <!-- STAT CARDS -->
+    <section class="stat-grid" id="analyticsStats"></section>
+
+    <!-- CHARTS ROW -->
+    <section class="charts-row">
+      <div class="chart-card wide">
+        <div class="chart-card-header">
+          <span class="chart-card-title">Daily Trend</span>
+          <span class="chart-card-note">Visits per day</span>
+        </div>
+        <div class="chart-body" id="dailyChart"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <span class="chart-card-title">Hourly Pressure</span>
+          <span class="chart-card-note">Entries by hour</span>
+        </div>
+        <div class="chart-body" id="hourlyChart"></div>
+      </div>
+    </section>
+
+    <section class="charts-row">
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <span class="chart-card-title">Weekly Momentum</span>
+          <span class="chart-card-note">Visits per week</span>
+        </div>
+        <div class="chart-body" id="weeklyChart"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <span class="chart-card-title">Branch Distribution</span>
+          <span class="chart-card-note">Traffic by branch</span>
+        </div>
+        <div class="chart-body" id="branchChart"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <span class="chart-card-title">Signals</span>
+          <span class="chart-card-note">Operational insights</span>
+        </div>
+        <div class="signals-body" id="analyticsSignals"></div>
+      </div>
+    </section>
+
+    <!-- TABLE -->
+    <section class="table-section">
+      <div class="table-header">
+        <div>
+          <span class="chart-card-title">Visit Records</span>
+          <span class="table-meta" id="analyticsTableMeta"></span>
+        </div>
+        <div id="analyticsFeedback" class="inline-feedback"></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Student ID</th>
+              <th>Name</th>
+              <th>Father Name</th>
+              <th>Branch</th>
+              <th>Date</th>
+              <th>Entry</th>
+              <th>Exit</th>
+              <th>Status</th>
+              <th>Duration</th>
+            </tr>
+          </thead>
+          <tbody id="analyticsRows"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- ADMIN UNLOCK MODAL -->
+  <div class="modal-overlay hidden" id="analyticsAdminModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span class="modal-title">Unlock Full View</span>
+        <button class="modal-close" id="closeAnalyticsModalBtn">✕</button>
+      </div>
+      <p class="modal-note">Enter admin credentials to see unmasked student data.</p>
+      <form id="analyticsLoginForm" class="modal-form">
+        <input id="analyticsUsername" name="username" autocomplete="username" placeholder="Username" class="modal-input">
+        <input id="analyticsPassword" name="password" type="password" autocomplete="current-password" placeholder="Password" class="modal-input">
+        <button type="submit" class="modal-submit">Unlock</button>
+      </form>
+      <div id="analyticsModalFeedback" class="modal-feedback">Enter admin credentials to enable full visibility.</div>
+    </div>
+  </div>
+
+  <script src="/analytics-static/analytics.js"></script>
+</body>
+</html>

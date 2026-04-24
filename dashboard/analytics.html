@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arya Library Analytics Console</title>
+  <link rel="icon" type="image/jpeg" href="/static/ace_logo.jpeg">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="shell analytics-shell">
+    <nav class="topbar analytics-topbar">
+      <div class="brand">
+        <img class="brand-logo" src="/static/ace_logo.jpeg" alt="Arya College of Engineering logo">
+        <div>
+          <p class="brand-name">ARYA COLLEGE OF ENGINEERING</p>
+          <p class="brand-sub">Arya Central Library Analytics</p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <a class="topbar-link" href="/admin">Overview</a>
+        <a class="topbar-link active-link" href="/analytics">Analytics</a>
+        <a class="topbar-link" href="/camera">Camera Desk</a>
+        <button class="ghost-button" id="analyticsAdminBtn" type="button">Admin View</button>
+        <div class="segmented-toggle" id="viewToggle">
+          <button class="toggle-chip active" id="maskedViewBtn" type="button">Masked</button>
+          <button class="toggle-chip" id="fullViewBtn" type="button" disabled>Full</button>
+        </div>
+        <button class="ghost-button hidden" id="analyticsLogoutBtn" type="button">Logout</button>
+      </div>
+    </nav>
+
+    <section class="analytics-hero">
+      <div class="hero-card analytics-hero-card">
+        <p class="eyebrow">Local Analytics Console</p>
+        <h1>Live library intelligence without spreadsheet archaeology.</h1>
+        <p class="sub">This dashboard reads the local visit store, keeps the student master in memory, and updates trends, filters, spikes, downloads, and table visibility in near real time.</p>
+        <div class="live-strip analytics-strip">
+          <span class="pill" id="analyticsModePill">Masked View Active</span>
+          <span class="pill" id="analyticsSyncPill">Waiting for first sync</span>
+          <span class="pill" id="analyticsFilterPill">All Visits</span>
+        </div>
+      </div>
+
+      <div class="panel analytics-control-panel">
+        <div class="panel-header">
+          <div>
+            <h2 class="section-title">Filters And Downloads</h2>
+            <div class="panel-note">Search instantly, trim the date range, isolate branches, and download the exact slice you need.</div>
+          </div>
+        </div>
+
+        <div class="analytics-filter-grid">
+          <label class="filter-field filter-span-2">
+            <span>Search</span>
+            <input id="analyticsSearch" type="text" placeholder="Student ID, name, father name, branch">
+          </label>
+          <label class="filter-field">
+            <span>Branch</span>
+            <select id="analyticsCourse">
+              <option value="">All Branches</option>
+            </select>
+          </label>
+          <label class="filter-field">
+            <span>Status</span>
+            <select id="analyticsState">
+              <option value="all">All Visits</option>
+              <option value="inside">Inside Only</option>
+              <option value="completed">Completed Only</option>
+            </select>
+          </label>
+          <label class="filter-field">
+            <span>Date From</span>
+            <input id="analyticsDateFrom" type="date">
+          </label>
+          <label class="filter-field">
+            <span>Date To</span>
+            <input id="analyticsDateTo" type="date">
+          </label>
+          <label class="filter-field">
+            <span>Week</span>
+            <select id="analyticsWeek">
+              <option value="">All Weeks</option>
+            </select>
+          </label>
+          <label class="filter-field">
+            <span>Rows</span>
+            <select id="analyticsRowLimit">
+              <option value="100">100</option>
+              <option value="250" selected>250</option>
+              <option value="500">500</option>
+              <option value="1000">1000</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="analytics-actions">
+          <button class="ghost-button small-button" id="presetTodayBtn" type="button">Today</button>
+          <button class="ghost-button small-button" id="presetWeekBtn" type="button">This Week</button>
+          <button class="ghost-button small-button" id="presetSevenDaysBtn" type="button">Last 7 Days</button>
+          <button class="secondary small-button" id="clearAnalyticsFiltersBtn" type="button">Clear Filters</button>
+          <button class="small-button" id="downloadFilteredBtn" type="button">Download Filtered</button>
+          <button class="small-button" id="downloadTodayBtn" type="button">Today Report</button>
+          <label class="analytics-download-inline">
+            <span>Weekly Report</span>
+            <select id="downloadWeekSelect">
+              <option value="">Select Week</option>
+            </select>
+          </label>
+          <button class="small-button" id="downloadWeekBtn" type="button">Download Week</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats analytics-stats" id="analyticsStats"></section>
+
+    <section class="analytics-insights-grid">
+      <article class="panel analytics-insight-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="section-title">Operational Signals</h2>
+            <div class="panel-note">Peak pressure, low traffic windows, and irregular open visits.</div>
+          </div>
+        </div>
+        <div class="analytics-signal-list" id="analyticsSignals"></div>
+      </article>
+
+      <article class="panel analytics-chart-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="section-title">Hourly Pressure Map</h2>
+            <div class="panel-note">Visit spikes by entry hour across the selected dataset.</div>
+          </div>
+        </div>
+        <div class="mini-chart" id="hourlyChart"></div>
+      </article>
+    </section>
+
+    <section class="analytics-chart-grid">
+      <article class="panel analytics-chart-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="section-title">Daily Trend</h2>
+            <div class="panel-note">Daily visit totals over the active filter window.</div>
+          </div>
+        </div>
+        <div class="mini-chart" id="dailyChart"></div>
+      </article>
+
+      <article class="panel analytics-chart-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="section-title">Weekly Momentum</h2>
+            <div class="panel-note">Weekly rollup for quick reporting and archive selection.</div>
+          </div>
+        </div>
+        <div class="mini-chart" id="weeklyChart"></div>
+      </article>
+
+      <article class="panel analytics-chart-card">
+        <div class="panel-header">
+          <div>
+            <h2 class="section-title">Branch Distribution</h2>
+            <div class="panel-note">Where the traffic is actually coming from, not where people guess it is.</div>
+          </div>
+        </div>
+        <div class="mini-chart" id="branchChart"></div>
+      </article>
+    </section>
+
+    <section class="panel analytics-table-panel">
+      <div class="panel-header">
+        <div>
+          <h2 class="section-title">Filtered Visit Table</h2>
+          <div class="panel-note" id="analyticsTableMeta">Waiting for analytics data.</div>
+        </div>
+      </div>
+      <div id="analyticsFeedback" class="feedback">Loading analytics...</div>
+      <div class="analytics-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Visit</th>
+              <th>Student ID</th>
+              <th>Name</th>
+              <th>Father Name</th>
+              <th>Branch</th>
+              <th>Date</th>
+              <th>Entry</th>
+              <th>Exit</th>
+              <th>Status</th>
+              <th>Duration</th>
+            </tr>
+          </thead>
+          <tbody id="analyticsRows"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <div class="analytics-modal hidden" id="analyticsAdminModal">
+    <div class="analytics-modal-card">
+      <div class="panel-header">
+        <div>
+          <h2 class="section-title">Unlock Full View</h2>
+          <div class="panel-note">Masked mode remains active unless an admin session is opened locally.</div>
+        </div>
+        <button class="ghost-button small-button" id="closeAnalyticsModalBtn" type="button">Close</button>
+      </div>
+      <form class="login-form analytics-login-form" id="analyticsLoginForm">
+        <label>
+          <span>Username</span>
+          <input id="analyticsUsername" name="username" autocomplete="username" placeholder="Enter username">
+        </label>
+        <label>
+          <span>Password</span>
+          <input id="analyticsPassword" name="password" type="password" autocomplete="current-password" placeholder="Enter password">
+        </label>
+        <button type="submit">Unlock Full View</button>
+      </form>
+      <div id="analyticsModalFeedback" class="feedback">Enter admin credentials to enable full visibility.</div>
+    </div>
+  </div>
+
+  <script src="/static/analytics.js"></script>
+</body>
+</html>
